@@ -2,6 +2,9 @@
 
 int main()
 {
-  printf("Hello, World! \n");
+  int *ptr = NULL;
+
+  printf("value of ptr is %x\n", ptr);
+
   return 0;
 }

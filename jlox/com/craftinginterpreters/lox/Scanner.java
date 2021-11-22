@@ -107,6 +107,25 @@ class Scanner {
         while (peek() != '\n' && !isAtEnd()) {
           advance();
         }
+        // C-style block comment '/* ……… */'
+      } else if (peek() == '*') {
+        // consume *
+        advance();
+
+        // skip over everything unitl we meet closing '*/'
+        while (peek() != '*' && peekNext() != '/') {
+          advance();
+
+          // update line counter on each newline
+          if (peek() == '\n') {
+            line++;
+          }
+        }
+
+        // Arrived at closing */, consume them
+        advance();
+        advance();
+
       } else {
         addToken(SLASH);
       }

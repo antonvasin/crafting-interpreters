@@ -1,0 +1,10 @@
+print "Hello, Lox!";
+
+var foo = 2 + 3 / 4 - 1;
+print foo;
+
+fun sum(a, b) { return a + b; }
+
+print sum(2, 6);
+
+// This is a comment

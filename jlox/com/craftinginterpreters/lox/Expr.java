@@ -40,9 +40,8 @@ abstract class Expr {
   }
 
   static class Literal extends Expr {
-    Literal(Token operator, Expr right) {
-      this.operator = operator;
-      this.right = right;
+    Literal(Object value) {
+      this.value = value;
     }
 
     @Override
@@ -50,8 +49,7 @@ abstract class Expr {
       return visitor.visitLiteralExpr(this);
     }
 
-    final Token operator;
-    final Expr right;
+    final Object value;
   }
 
   static class Unary extends Expr {

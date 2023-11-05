@@ -20,7 +20,7 @@ public class GenerateAst {
         //
         "Grouping : Expr expression",
         //
-        "Literal  : Token operator, Expr right",
+        "Literal  : Object value",
         //
         "Unary    : Token operator, Expr right"));
   }

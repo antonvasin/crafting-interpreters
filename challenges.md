@@ -20,14 +20,19 @@
 
 ## Chapter 5 p71
 
-1. It encodes method access to object: `4`, `foo`, `foo()`, `foo.bar()`, etc:
+1. It encodes property access to an object and : `4`, `foo`, `foo()`, `foo.bar(2+2, baz)`, etc:
    ```
-    expr -> expr method
-    method -> "(" ( expr ( "," expr )* )? ")"
-    method -> "." IDENTIFIER
-    method -> method method
-    expr -> NUMBER
-    expr -> IDENTIFIER
+   expr → expr ( "(" ( expr ( " , " expr )* )? ")" | " . " IDENTIFIER )+
+     | IDENTIFIER
+     | NUMBER
+   ```
+   ```
+   expr -> expr method
+   method -> "(" ( expr ( "," expr )* )? ")"
+   method -> "." IDENTIFIER
+   method -> method method
+   expr -> NUMBER
+   expr -> IDENTIFIER
    ```
 2. ???
 3. ???

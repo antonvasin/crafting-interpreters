@@ -38,7 +38,7 @@
 3. ???
 4. ???
 
-## Chapter 6
+## Chapter 6 p91
 
 1. Implement comma expressions with the same precedence and associativity as in
    C. Write the grammar.
@@ -46,9 +46,15 @@
    expression →  comma ;
    comma -> equality ( "," equality )* ;
    equality →  comparison ( ( "!=" | "==" ) comparison )* ;
-   comparison →  term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
-   term →  factor ( ( "-" | "+" ) factor )* ;
-   factor →  unary ( ( "/" | "*" ) unary )* ;
-   unary →  ( "!" | "-" ) unary | primary ;
-   primary →  NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+   ...
    ```
+2. Ternary has lower precedence than equality but higher than comma operator. Expressions between `?` and `:` are parsed as if they're parenthesised. It has right-to-left associativity.
+   ```
+   expression →  comma ;
+   comma -> ternary ( "," ternary )* ;
+   ternary -> equality ( "?" expression ":" equality)* ;
+   equality →  comparison ( ( "!=" | "==" ) comparison )* ;
+   ...
+   ```
+   ==TODO: implement==
+3. ???

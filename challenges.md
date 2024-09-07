@@ -22,7 +22,7 @@
 
 1. It encodes property access to an object and : `4`, `foo`, `foo()`, `foo.bar(2+2, baz)`, etc:
    ```
-   expr → expr ( "(" ( expr ( " , " expr )* )? ")" | " . " IDENTIFIER )+
+   expr →  expr ( "(" ( expr ( " , " expr )* )? ")" | " . " IDENTIFIER )+
      | IDENTIFIER
      | NUMBER
    ```
@@ -39,3 +39,16 @@
 4. ???
 
 ## Chapter 6
+
+1. Implement comma expressions with the same precedence and associativity as in
+   C. Write the grammar.
+   ```
+   expression →  comma ;
+   comma -> equality ( "," equality )* ;
+   equality →  comparison ( ( "!=" | "==" ) comparison )* ;
+   comparison →  term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+   term →  factor ( ( "-" | "+" ) factor )* ;
+   factor →  unary ( ( "/" | "*" ) unary )* ;
+   unary →  ( "!" | "-" ) unary | primary ;
+   primary →  NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+   ```

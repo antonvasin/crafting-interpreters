@@ -23,6 +23,9 @@ jlox: generate_ast
 test: jlox
 	@ java -cp build/jlox com.craftinginterpreters.lox.Lox < examples/basic.lox
 
+repl: jlox
+	@ java -cp build/jlox com.craftinginterpreters.lox.Lox
+
 run_generate_ast = @ java -cp build/gen/$(1) \
 			com.craftinginterpreters.tool.GenerateAst \
 			gen/$(1)/com/craftinginterpreters/lox

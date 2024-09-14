@@ -58,3 +58,23 @@
    ```
    ==TODO: implement==
 3. ???
+
+## Chapter 7 p102
+
+1. Comparing different types.
+   - `String` and `Boolean` for `"1"` and `"0"`, possibly also `"true"` and
+     `"false"` with `Boolean` taking precedence. Can be useful when working
+     with command line arguments and environment variables.
+   - `Number` and `Boolean` for `1` and `0`, Boolean takes precedence. Makes
+     `0` more logical and an exception from "truthy" values.
+   - `String` and `Number`, `String` coerced into `Number` when
+     `Number` is on either side of an expression. Can be useful when dealing
+     with mixed user input such as forms.
+   - `String` and `Number` for sorting mixed types like in Ruby. Number always
+     comes first in sort.
+2. Implement casting to `String` in `"pancake" + 10 => "pancake10"`.
+3. If we divide by 0 right now the result is `Infinity`. Since we don't have
+   `Infinity` in our types currently it is better to raise `RuntimeError`.
+   - JS, Lua return `Infinity` as well.
+   - Python raises runtime error.
+   - In C, Zig division by zero is UB.

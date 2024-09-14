@@ -27,7 +27,7 @@ class Scanner {
     keywords.put("return", RETURN);
     keywords.put("super", SUPER);
     keywords.put("this", THIS);
-    keywords.put("true", VAR);
+    keywords.put("true", TRUE);
     keywords.put("while", WHILE);
   }
 

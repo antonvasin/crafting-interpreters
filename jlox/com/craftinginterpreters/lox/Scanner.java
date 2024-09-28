@@ -29,6 +29,7 @@ class Scanner {
     keywords.put("this", THIS);
     keywords.put("true", TRUE);
     keywords.put("while", WHILE);
+    keywords.put("var", VAR);
   }
 
   private int start = 0;

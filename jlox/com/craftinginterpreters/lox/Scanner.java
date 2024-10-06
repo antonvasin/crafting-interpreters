@@ -108,25 +108,20 @@ class Scanner {
         while (peek() != '\n' && !isAtEnd()) {
           advance();
         }
-        // C-style block comment '/* ……… */'
-      } else if (peek() == '*') {
-        // consume *
-        advance();
-
+      // C-style block comment '/* ……… */'
+      } else if (match('*')) {
         // skip over everything unitl we meet closing '*/'
-        while (peek() != '*' && peekNext() != '/') {
-          advance();
-
+        while (!(peek() == '*' && peekNext() == '/') && !isAtEnd()) {
           // update line counter on each newline
-          if (peek() == '\n') {
-            line++;
-          }
+          if (peek() == '\n') line++;
+          advance();
         }
 
         // Arrived at closing */, consume them
-        advance();
-        advance();
-
+        if (!isAtEnd()) {
+          advance();
+          advance();
+        }
       } else {
         addToken(SLASH);
       }

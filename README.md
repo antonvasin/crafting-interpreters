@@ -5,6 +5,6 @@
 ## Run
 
 ```shell
-make jlox
-java -cp build/jlox com.craftinginterpreters.lox.Lox < examples/basic.lox
+make
+java -cp build/jlox com.craftinginterpreters.lox.Lox examples/basic.lox
 ```

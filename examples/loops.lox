@@ -1,0 +1,8 @@
+var foo = 0;
+while (foo < 9) {
+  foo = foo + 1;
+}
+print foo;
+if (foo > 5) {
+  print "foo is more than 5";
+}

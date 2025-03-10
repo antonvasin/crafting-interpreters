@@ -104,6 +104,10 @@ If we divide by 0 right now the result is `Infinity`. Since we don't have
 
 ## Chapter 8 p124
 
+### 1
+
+Implement printing of expressions in interpreter.
+
 ### 2
 
 ==TODO: throw error when accessing uninitialized variable==

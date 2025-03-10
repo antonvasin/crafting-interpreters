@@ -1,7 +1,4 @@
 BUILD_DIR := build
-TOOL_SOURCES := tool/pubspec.lock $(shell find tool -name '*.dart')
-BUILD_SNAPSHOT := $(BUILD_DIR)/build.dart.snapshot
-TEST_SNAPSHOT := $(BUILD_DIR)/test.dart.snapshot
 
 default: jlox
 
@@ -21,7 +18,7 @@ jlox: generate_ast
 	@ $(MAKE) -f java.make DIR=jlox PACKAGE=lox
 
 test: jlox
-	@ java -cp build/jlox com.craftinginterpreters.lox.Lox < examples/basic.lox
+	@ java -cp build/jlox com.craftinginterpreters.lox.Lox < examples/test.lox
 
 repl: jlox
 	@ java -cp build/jlox com.craftinginterpreters.lox.Lox

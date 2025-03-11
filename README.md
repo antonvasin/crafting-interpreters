@@ -48,7 +48,7 @@ java -cp build/jlox com.craftinginterpreters.lox.Lox examples/basic.lox
 
 ### Chapter 6 _p87_
 
-1. [ ] Implement comma expressions with the same precedence and associativity as in C.
+1. [x] Implement comma expressions with the same precedence and associativity as in C.
     ```
     expression →  comma ;
     comma -> equality ( "," equality )* ;

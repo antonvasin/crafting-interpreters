@@ -18,7 +18,7 @@ jlox: generate_ast
 	@ $(MAKE) -f java.make DIR=jlox PACKAGE=lox
 
 test: jlox
-	@ java -cp build/jlox com.craftinginterpreters.lox.Lox < examples/test.lox
+	@ java -cp build/jlox com.craftinginterpreters.lox.Lox examples/test.lox
 
 repl: jlox
 	@ java -cp build/jlox com.craftinginterpreters.lox.Lox

@@ -1,3 +1,32 @@
 2 + 2;
 print "Hello, world!";
 print 2 + 2;
+// Comment
+/*
+ * block comment
+ */
+var foo = 2 + 3 / 4 - 1;
+
+var a = "outermost a";
+var b = "outermost b";
+var c = "outermost c";
+{
+  var a = "middle a";
+  var b = "middle b";
+  {
+    var a = "innermost a";
+    print a;
+    print b;
+    print c;
+  }
+  print a;
+  print b;
+  print c;
+}
+print a;
+print b;
+print c;
+
+for (; foo < 10; foo = foo + 1) {
+  print foo;
+}

@@ -12,6 +12,7 @@ class Parser {
 
   private final List<Token> tokens;
   private int current = 0;
+  private int loopLevel = 0;
 
   Parser(List<Token> tokens) {
     this.tokens = tokens;
@@ -41,10 +42,11 @@ class Parser {
   }
 
   private Stmt statement() {
-    if (match(FOR)) return forStatement();
     if (match(IF)) return ifStatement();
     if (match(PRINT)) return printStatement();
     if (match(WHILE)) return whileStatement();
+    if (match(FOR)) return forStatement();
+    if (match(BREAK)) return breakStatement();
     if (match(LEFT_BRACE)) return new Stmt.Block(block());
     return expressionStatement();
   }
@@ -72,7 +74,6 @@ class Parser {
       increment = expression();
     }
     consume(RIGHT_PAREN, "Expect ')' after 'for' clauses.");
-    Stmt body = statement();
 
     // `for` desugars to `while` loop internaly:
     //
@@ -85,6 +86,9 @@ class Parser {
     //      i = i + 1;
     //   }
     // }
+
+    this.loopLevel++;
+    Stmt body = statement();
 
     // Increment executes after the body, so we create a new body with the
     // original followed by an increment expression.
@@ -101,7 +105,18 @@ class Parser {
       body = new Stmt.Block(Arrays.asList(initializer, body));
     }
 
+    this.loopLevel--;
     return body;
+  }
+
+  private Stmt breakStatement() {
+    if (this.loopLevel == 0) {
+      throw error(previous(), "Can not use 'break' outside of a loop.");
+    }
+
+    consume(SEMICOLON, "Missing ';' after 'break';");
+
+    return new Stmt.Break();
   }
 
   private Stmt ifStatement() {
@@ -138,9 +153,13 @@ class Parser {
     consume(LEFT_PAREN, "Expect '(' after 'while'.");
     Expr condition = expression();
     consume(RIGHT_PAREN, "Expect ')' after condition.");
-    Stmt body = statement();
 
-    return new Stmt.While(condition, body);
+    this.loopLevel++;
+    Stmt body = statement();
+    body = new Stmt.While(condition, body);
+    this.loopLevel--;
+
+    return body;
   }
 
   private Stmt expressionStatement() {

@@ -30,6 +30,7 @@ class Scanner {
     keywords.put("true", TRUE);
     keywords.put("while", WHILE);
     keywords.put("var", VAR);
+    keywords.put("break", BREAK);
   }
 
   private int start = 0;

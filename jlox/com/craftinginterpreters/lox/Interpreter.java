@@ -42,6 +42,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
       case MINUS:
         checkNumberOperand(expr.operator, right);
         return -(double)right;
+        // TODO: add fallthrough cases for errors
     }
     // Unreachable
     return null;
@@ -155,9 +156,20 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   @Override
   public Void visitWhileStmt(Stmt.While stmt) {
     while (isTruthy(evaluate(stmt.condition))) {
-      execute(stmt.body);
+      try {
+        execute(stmt.body);
+      } catch (BreakError e) {
+        break;
+      } catch (Exception e) {
+        throw e;
+      }
     }
     return null;
+  }
+
+  @Override
+  public Void visitBreakStmt(Stmt.Break stmt) {
+    throw new BreakError();
   }
 
   @Override

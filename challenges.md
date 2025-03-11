@@ -124,3 +124,20 @@ var a = 1;
 ```
 
 `var a = a + 2` is expected to assign local `a` to 3 (1 + 2) and print 3. Outer `a` should stay `1`.
+
+## Chapter 9 p141
+
+### 1
+
+We can declare two functions `run_when_truthy` and `run_when_falsy`, evaluate
+our condition and call necessary function.
+
+In Smalltalk ["decision logic is expressed by sending messages to booleans, numbers and collections with blocks as arguments"](https://cuis-smalltalk.github.io/TheCuisBook/Control-flow-with-block-and-message.html).
+
+### 2
+
+Tail-call elimination as done in Lisp. This allows us to treat recursion the same as usual loop.
+
+### 3
+
+Implement `break` statements.

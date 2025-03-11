@@ -29,4 +29,7 @@ print c;
 
 for (; foo < 10; foo = foo + 1) {
   print foo;
+  if (foo > 8) {
+    break;
+  }
 }

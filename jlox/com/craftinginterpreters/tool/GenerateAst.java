@@ -31,7 +31,8 @@ public class GenerateAst {
                   " Stmt elseBranch",
       "Print      : Expr expression",
       "Var        : Token name, Expr initializer",
-      "While      : Expr condition, Stmt body"
+      "While      : Expr condition, Stmt body",
+      "Break      :"
     ));
   }
 
@@ -50,8 +51,9 @@ public class GenerateAst {
     defineVisitor(writer, baseName, types);
 
     for (String type : types) {
-      String className = type.split(":")[0].trim();
-      String fields = type.split(":")[1].trim();
+      String[] parts = type.split(":");
+      String className = parts[0].trim();
+      String fields = parts.length > 1 ? parts[1].trim() : "";
       defineType(writer, baseName, className, fields);
     }
 
@@ -82,11 +84,14 @@ public class GenerateAst {
     writer.println("    " + className + "(" + fieldList + ") {");
 
     // Params
-    String[] fields = fieldList.split(", ");
-    for (String field : fields) {
-      String name = field.split(" ")[1];
-      // 3 level indent
-      writer.println("      this." + name + " = " + name + ";");
+    String[] fields = null;
+    if (!fieldList.isEmpty()) {
+      fields = fieldList.split(", ");
+      for (String field : fields) {
+        String name = field.split(" ")[1];
+        // 3 level indent
+        writer.println("      this." + name + " = " + name + ";");
+      }
     }
 
     // 2 level indent
@@ -100,10 +105,12 @@ public class GenerateAst {
     writer.println("    }");
 
     // Fields
-    writer.println();
-    for (String field : fields) {
-      // 2 level indent
-      writer.println("    final " + field + ";");
+    if (!fieldList.isEmpty()){
+      writer.println();
+      for (String field : fields) {
+        // 2 level indent
+        writer.println("    final " + field + ";");
+      }
     }
 
     // Close

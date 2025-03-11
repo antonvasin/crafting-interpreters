@@ -3,6 +3,10 @@ while (foo < 9) {
   foo = foo + 1;
 }
 print foo;
-if (foo > 5) {
-  print "foo is more than 5";
+
+for (var i = 0; i <= 5; i = i + 1) {
+  if (i > 3) {
+    print i;
+    print "more than 3";
+  }
 }

@@ -2,6 +2,7 @@ package com.craftinginterpreters.lox;
 
 import java.beans.Expression;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.craftinginterpreters.lox.TokenType.*;
@@ -40,11 +41,67 @@ class Parser {
   }
 
   private Stmt statement() {
+    if (match(FOR)) return forStatement();
     if (match(IF)) return ifStatement();
     if (match(PRINT)) return printStatement();
     if (match(WHILE)) return whileStatement();
     if (match(LEFT_BRACE)) return new Stmt.Block(block());
     return expressionStatement();
+  }
+
+  private Stmt forStatement() {
+    consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+
+    Stmt initializer;
+    if (match(SEMICOLON)) {
+      initializer = null;
+    } else if (match(VAR)) {
+      initializer = varDeclaration();
+    } else {
+      initializer = expressionStatement();
+    }
+
+    Expr condition = null;
+    if (!check(SEMICOLON)) {
+      condition = expression();
+    }
+    consume(SEMICOLON, "Expect ';' after loop condition.");
+
+    Expr increment = null;
+    if (!check(RIGHT_PAREN)) {
+      increment = expression();
+    }
+    consume(RIGHT_PAREN, "Expect ')' after 'for' clauses.");
+    Stmt body = statement();
+
+    // `for` desugars to `while` loop internaly:
+    //
+    // for (var i = 0; i < 10; i = i + 1) print i;
+    //
+    // {
+    //   var i = 0;
+    //   while (i < 10) {
+    //      print i;
+    //      i = i + 1;
+    //   }
+    // }
+
+    // Increment executes after the body, so we create a new body with the
+    // original followed by an increment expression.
+    if (increment != null) {
+      body = new Stmt.Block(Arrays.asList(body, new Stmt.Expression(increment)));
+    }
+
+    // Empty condition means infinite loop
+    if (condition == null) condition = new Expr.Literal(true);
+    body = new Stmt.While(condition, body);
+
+    // Wrap body with initializer if we have one
+    if (initializer != null) {
+      body = new Stmt.Block(Arrays.asList(initializer, body));
+    }
+
+    return body;
   }
 
   private Stmt ifStatement() {

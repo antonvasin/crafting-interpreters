@@ -33,3 +33,9 @@ for (; foo < 10; foo = foo + 1) {
     break;
   }
 }
+
+fun sayHello(arg1, arg2) {
+  print "Hi, "  + arg1 + " " + arg2 + "!";
+}
+
+sayHello("Anton", "Vasin");

@@ -3,11 +3,10 @@ package com.craftinginterpreters.lox;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.craftinginterpreters.lox.LoxCallable;
-
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   final Environment globals = new Environment();
   private Environment environment = globals;
+  public Boolean isREPL = false;
 
   Interpreter() {
     globals.define("clock", new LoxCallable() {
@@ -27,8 +26,6 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
       }
     });
   }
-
-  private static class BreakException extends RuntimeException {}
 
   void interpret(List<Stmt> statements) {
     try {
@@ -147,7 +144,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   public Void visitExpressionStmt(Stmt.Expression stmt) {
     Object value = evaluate(stmt.expression);
     // Print expression in REPL after executing it
-    System.out.println(stringify(value));
+    if (this.isREPL) {
+      System.out.println(stringify(value));
+    }
     return null;
   }
 
@@ -178,6 +177,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   }
 
   @Override
+  public Void visitReturnStmt(Stmt.Return stmt) {
+    Object value = null;
+    if (stmt.value != null) value = evaluate(stmt.value);
+    throw new Return(value);
+  }
+
+  @Override
   public Void visitVarStmt(Stmt.Var stmt) {
     Object value = null;
     if (stmt.initializer != null) {
@@ -192,7 +198,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     while (isTruthy(evaluate(stmt.condition))) {
       try {
         execute(stmt.body);
-      } catch (BreakException e) {
+      } catch (Break e) {
         break;
       } catch (Exception e) {
         throw e;
@@ -203,7 +209,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitBreakStmt(Stmt.Break stmt) {
-    throw new BreakException();
+    throw new Break();
   }
 
   @Override

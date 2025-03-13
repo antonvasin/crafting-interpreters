@@ -96,3 +96,17 @@ java -cp build/jlox com.craftinginterpreters.lox.Lox examples/basic.lox
 1. We can declare two functions `run_when_truthy` and `run_when_falsy`, evaluate our condition and call necessary function. In Smalltalk ["decision logic is expressed by sending messages to booleans, numbers and collections with blocks as arguments"](https://cuis-smalltalk.github.io/TheCuisBook/Control-flow-with-block-and-message.html).
 2. Tail-call elimination as done in Lisp. This allows us to treat recursion the same as usual loop.
 3. [x] Implement `break` statements.
+
+### Chapter 10 _p162_
+
+1. In Smalltalk there are _unary_, _binary_ and _keyword_ messages. Unary
+   messages are just a word/name. Binary are operators such as `+`, `-`, `*`,
+   etc. Keyword messages are using keywords as arguments: `42 between: 41 and: 43`
+   and it's name is really a `#between:and:` message. If we'd pass other set of arguments
+   then the message itself would be different.
+2. Implement lambdas. We need to introduce new expression type for anonymous functions.
+   We modify function declaration parsing to check whether we have function declaration or anonymous function.
+3. Not correct because it shadows function parameters. Lox allows this but
+   should not since parameters share the function scope and not wrapped in their own.
+   JS also allows to shadow function arguments. C and Java don't. Generally it
+   is a good idea to prohibit this altogether.

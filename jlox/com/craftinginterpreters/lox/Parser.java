@@ -33,7 +33,10 @@ class Parser {
 
   private Stmt declaration() {
     try {
-      if (match(FUN)) return function("function");
+      if (check(FUN) && checkNext(IDENTIFIER)) {
+        consume(FUN, null);
+        return function("function");
+      }
       if (match(VAR)) return varDeclaration();
       return statement();
     } catch (ParseError error) {
@@ -183,6 +186,10 @@ class Parser {
 
   private Stmt.Function function(String kind) {
     Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
+    return new Stmt.Function(name, functionBody(kind));
+  }
+
+  private Expr.Function functionBody(String kind) {
     consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
 
     // Parse function parameters
@@ -203,7 +210,7 @@ class Parser {
     // Parse the body and wrap it into statement
     consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
     List<Stmt> body = block();
-    return new Stmt.Function(name, parameters, body);
+    return new Expr.Function(parameters, body);
   }
 
   private List<Stmt> block() {
@@ -373,6 +380,8 @@ class Parser {
       return new Expr.Variable(previous());
     }
 
+    if (match(FUN)) return functionBody("function");
+
     if (match(LEFT_PAREN)) {
       Expr expr = expression();
       consume(RIGHT_PAREN, "Expect ')' after expression.");
@@ -402,6 +411,12 @@ class Parser {
   private boolean check(TokenType type) {
     if (isAtEnd()) return false;
     return peek().type == type;
+  }
+
+  private boolean checkNext(TokenType type) {
+    if (isAtEnd()) return false;
+    if (tokens.get(current + 1).type == EOF) return false;
+    return tokens.get(current + 1).type == type;
   }
 
   private Token advance() {

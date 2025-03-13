@@ -1,0 +1,19 @@
+fun whichFn(fn) {
+  print fn;
+}
+
+whichFn(fun (b) {
+ print b;
+});
+
+fun named(a) { print a; }
+whichFn(named);
+//
+// <fn>
+// <fn named>
+
+fun scope(a) {
+  var a = "local";
+  print a;
+}
+scope(123);

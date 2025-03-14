@@ -1,0 +1,13 @@
+fun bad() {
+  var a = "abc";
+  var a = "abc";
+}
+
+return "foo";
+
+fun scope(a) {
+  var a = "local";
+  print a;
+}
+scope(123);
+

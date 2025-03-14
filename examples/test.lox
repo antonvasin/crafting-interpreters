@@ -1,41 +1,65 @@
 2 + 2;
 print "Hello, world!";
-print 2 + 2;
 // Comment
 /*
  * block comment
  */
+
+// Break
 var foo = 2 + 3 / 4 - 1;
-
-var a = "outermost a";
-var b = "outermost b";
-var c = "outermost c";
-{
-  var a = "middle a";
-  var b = "middle b";
-  {
-    var a = "innermost a";
-    print a;
-    print b;
-    print c;
-  }
-  print a;
-  print b;
-  print c;
-}
-print a;
-print b;
-print c;
-
 for (; foo < 10; foo = foo + 1) {
   print foo;
-  if (foo > 8) {
+  if (foo > 6) {
     break;
   }
 }
 
-fun sayHello(arg1, arg2) {
-  print "Hi, "  + arg1 + " " + arg2 + "!";
+// Scope
+var a = "global";
+{
+  fun showA() {
+    print a;
+  }
+  showA();
+  var a = "block";
+  showA();
 }
 
-sayHello("Anton", "Vasin");
+// Recursion
+fun fib(n) {
+  if (n <= 1) return n;
+  return fib(n - 2) + fib(n - 1);
+}
+
+for (var i = 0; i < 10; i = i + 1) {
+  print "Fib " + i + ": " + fib(i);
+}
+
+// Closures
+fun makeCounter() {
+  var i = 0;
+  fun count() {
+    i = i + 1;
+    print "Counter: " + i;
+  }
+  return count;
+}
+var counter = makeCounter();
+counter();
+counter();
+
+// Lambdas
+fun whichFn(fn) {
+  print fn;
+}
+
+whichFn(fun (b) {
+ print b;
+});
+
+fun named(a) { print a; }
+whichFn(named);
+//
+// <fn>
+// <fn named>
+

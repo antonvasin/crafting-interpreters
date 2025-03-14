@@ -110,3 +110,15 @@ java -cp build/jlox com.craftinginterpreters.lox.Lox examples/basic.lox
    should not since parameters share the function scope and not wrapped in their own.
    JS also allows to shadow function arguments. C and Java don't. Generally it
    is a good idea to prohibit this altogether.
+
+### Chapter 11 _p182_
+
+1. Because functions are always evaluated after they are defined since calls just
+   create a node which is evaluated later by interpreter. There's no "undefined" value to deal with.
+2. JS allows this, providing outer variable in the initializer. Java doesn't
+   allow this raising compilation error. It is generally better to prohibit
+   such statements to avoid confusion. If they are allowed inside of blocks
+   then they must be allowed in the global scope also but this leads to having
+   "undefined" value which is not ideal.
+3. [ ] Report "not used" errors in Resolver.
+4. [ ] Store variables in Resolver inside of an array.

@@ -120,5 +120,5 @@ java -cp build/jlox com.craftinginterpreters.lox.Lox examples/basic.lox
    such statements to avoid confusion. If they are allowed inside of blocks
    then they must be allowed in the global scope also but this leads to having
    "undefined" value which is not ideal.
-3. [ ] Report "not used" errors in Resolver.
+3. [x] Report "not used" errors in Resolver.
 4. [ ] Store variables in Resolver inside of an array.

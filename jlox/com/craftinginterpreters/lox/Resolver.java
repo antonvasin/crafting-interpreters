@@ -23,17 +23,29 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
   private enum FunctionType { NONE, FUNCTION }
 
-  private enum DeclarationState { DECLARED, DEFINED, USED }
   private class ScopeVariable {
-    public DeclarationState state = DeclarationState.DECLARED;
-    private Token token;
+    enum State { DECLARED, DEFINED, USED }
+    private State state = State.DECLARED;
+    private final Token name;
 
-    ScopeVariable(Token token) {
-      this.token = token;
+    ScopeVariable(Token name) {
+      this.name = name;
     }
 
-    Token getToken() {
-      return token;
+    public Token getName() {
+      return name;
+    }
+
+    public boolean isDeclared() { return state == State.DECLARED; }
+    public boolean isDefined() { return state == State.DEFINED; }
+    public boolean isUsed() { return state == State.USED; }
+
+    public void setDefined() {
+      if (isDeclared()) state = State.DEFINED;
+    }
+
+    public void setUsed() {
+      if (isDefined()) state = State.USED;
     }
   }
 
@@ -170,7 +182,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     // Here we prohibit using a variable in it's own initializer by checking if it is only declared but not yet initialized
     if (!scopes.isEmpty() &&
         scopes.peek().get(expr.name.lexeme) != null &&
-        scopes.peek().get(expr.name.lexeme).state == DeclarationState.DECLARED) {
+        scopes.peek().get(expr.name.lexeme).isDeclared()) {
       Lox.error(expr.name, "Can't read local variable in its own initializer");
     }
 
@@ -200,8 +212,8 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     // We check for unused variables and report them as errors
     for (Map.Entry<String, ScopeVariable> entry : scopes.peek().entrySet()) {
       ScopeVariable scopeVariable = entry.getValue();
-      if (scopeVariable.state != DeclarationState.USED) {
-        Lox.error(scopeVariable.getToken(), "Unused variable '" + entry.getKey() + "'.");
+      if (!scopeVariable.isUsed()) {
+        Lox.error(scopeVariable.getName(), "Unused variable '" + entry.getKey() + "'.");
       }
     }
 
@@ -221,7 +233,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
   private void define(Token name) {
     if (scopes.isEmpty()) return;
-    scopes.peek().get(name.lexeme).state = DeclarationState.DEFINED;
+    scopes.peek().get(name.lexeme).setDefined();
   }
 
   private void resolveLocal(Expr expr, Token name) {
@@ -230,7 +242,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
       if (scopes.get(i).containsKey(name.lexeme)) {
         interpreter.resolve(expr, scopes.size()-1-i);
         // We mark function as used upon resolution to report unused errors later
-        scopes.get(i).get(name.lexeme).state = DeclarationState.USED;
+        scopes.get(i).get(name.lexeme).setUsed();
         return;
       }
     }

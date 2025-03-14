@@ -82,10 +82,12 @@ public class Lox {
   }
 
   static void error(Token token, String message) {
+    // We report line+1 because humans count lines starting from 1
+    int line = token.line + 1;
     if (token.type == TokenType.EOF) {
-      report(token.line, " at end", message);
+      report(line, " at end", message);
     } else {
-      report(token.line, " at '" + token.lexeme + "'", message);
+      report(line, " at '" + token.lexeme + "'", message);
     }
   }
 }

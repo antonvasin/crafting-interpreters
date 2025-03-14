@@ -5,26 +5,37 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-
 /*
- * Resolver is an additional pass after parsing and before executing.
+ * Resolver is an additional pass after parsing and before executing which
+ * resolves all variables and makes some additional checks.
  * It acts as a kind of "interpreter" that visits only nodes that has to do
  * with variable resolution. It has no side-effects and no control flow.
  * All branches along with function bodies are visited.
  */
 public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   private final Interpreter interpreter;
-  private final Stack<Map<String, Boolean>> scopes = new Stack<>();
+  private final Stack<Map<String, ScopeVariable>> scopes = new Stack<>();
   private FunctionType currentFunction = FunctionType.NONE;
-  // TODO: only allow 'break' inside loops
-  private LoopType currentLoop = LoopType.NONE;
 
   Resolver(Interpreter interpreter) {
     this.interpreter = interpreter;
   }
 
   private enum FunctionType { NONE, FUNCTION }
-  private enum LoopType { NONE, WHILE }
+
+  private enum DeclarationState { DECLARED, DEFINED, USED }
+  private class ScopeVariable {
+    public DeclarationState state = DeclarationState.DECLARED;
+    private Token token;
+
+    ScopeVariable(Token token) {
+      this.token = token;
+    }
+
+    Token getToken() {
+      return token;
+    }
+  }
 
   @Override
   public Void visitBlockStmt(Stmt.Block stmt) {
@@ -156,9 +167,10 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitVariableExpr(Expr.Variable expr) {
-    // Here we prohibit using variable in it's own initializer by checking if
-    // it has `false` value in current scope, which means it is not initialized yet.
-    if (!scopes.isEmpty() && scopes.peek().get(expr.name.lexeme) == Boolean.FALSE) {
+    // Here we prohibit using a variable in it's own initializer by checking if it is only declared but not yet initialized
+    if (!scopes.isEmpty() &&
+        scopes.peek().get(expr.name.lexeme) != null &&
+        scopes.peek().get(expr.name.lexeme).state == DeclarationState.DECLARED) {
       Lox.error(expr.name, "Can't read local variable in its own initializer");
     }
 
@@ -181,34 +193,44 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   private void beginScope() {
-    scopes.push(new HashMap<String, Boolean>());
+    scopes.push(new HashMap<String, ScopeVariable>());
   }
 
   private void endScope() {
+    // We check for unused variables and report them as errors
+    for (Map.Entry<String, ScopeVariable> entry : scopes.peek().entrySet()) {
+      ScopeVariable scopeVariable = entry.getValue();
+      if (scopeVariable.state != DeclarationState.USED) {
+        Lox.error(scopeVariable.getToken(), "Unused variable '" + entry.getKey() + "'.");
+      }
+    }
+
     scopes.pop();
   }
 
   private void declare(Token name) {
     if (scopes.isEmpty()) return;
 
-    Map<String, Boolean> scope = scopes.peek();
+    Map<String, ScopeVariable> scope = scopes.peek();
     if (scope.containsKey(name.lexeme)) {
       Lox.error(name, "Variable already exists");
     }
 
-    // `false` here means that variable is declared but not ready yet
-    scope.put(name.lexeme, false);
+    scope.put(name.lexeme, new ScopeVariable(name));
   }
 
   private void define(Token name) {
     if (scopes.isEmpty()) return;
-    scopes.peek().put(name.lexeme, true);
+    scopes.peek().get(name.lexeme).state = DeclarationState.DEFINED;
   }
 
   private void resolveLocal(Expr expr, Token name) {
+    // We go down the stack and try to resolve variable in the nearest scope
     for (int i = scopes.size()-1; i >= 0; i--) {
       if (scopes.get(i).containsKey(name.lexeme)) {
         interpreter.resolve(expr, scopes.size()-1-i);
+        // We mark function as used upon resolution to report unused errors later
+        scopes.get(i).get(name.lexeme).state = DeclarationState.USED;
         return;
       }
     }

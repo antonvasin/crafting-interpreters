@@ -7,7 +7,7 @@ return "foo";
 
 fun scope(a) {
   var a = "local";
+  var unused = "report me";
   print a;
 }
 scope(123);
-

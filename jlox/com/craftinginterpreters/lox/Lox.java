@@ -59,6 +59,8 @@ public class Lox {
     // Stop on syntax error
     if (hadError) return;
 
+    Resolver resolver = new Resolver(interpreter);
+    resolver.resolve(statements);
     // System.out.println(new AstPrinter().print(expression));
     interpreter.interpret(statements);
   }

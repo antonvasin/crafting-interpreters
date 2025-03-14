@@ -24,7 +24,6 @@ public class Lox {
     } else if (args.length == 1) {
       runFile(args[0]);
     } else {
-      interpreter.isREPL = true;
       runPrompt();
     }
   }
@@ -37,6 +36,7 @@ public class Lox {
   }
 
   private static void runPrompt() throws IOException {
+    interpreter.isREPL = true;
     InputStreamReader input = new InputStreamReader(System.in);
     BufferedReader reader = new BufferedReader(input);
 
@@ -61,7 +61,9 @@ public class Lox {
 
     Resolver resolver = new Resolver(interpreter);
     resolver.resolve(statements);
-    // System.out.println(new AstPrinter().print(expression));
+
+    if (hadError) return;
+
     interpreter.interpret(statements);
   }
 

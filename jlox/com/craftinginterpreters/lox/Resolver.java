@@ -15,10 +15,16 @@ import java.util.Stack;
 public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   private final Interpreter interpreter;
   private final Stack<Map<String, Boolean>> scopes = new Stack<>();
+  private FunctionType currentFunction = FunctionType.NONE;
+  // TODO: only allow 'break' inside loops
+  private LoopType currentLoop = LoopType.NONE;
 
   Resolver(Interpreter interpreter) {
     this.interpreter = interpreter;
   }
+
+  private enum FunctionType { NONE, FUNCTION }
+  private enum LoopType { NONE, WHILE }
 
   @Override
   public Void visitBlockStmt(Stmt.Block stmt) {
@@ -39,7 +45,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     declare(stmt.name);
     // We define function right away so it would be available in it's own inner scope
     define(stmt.name);
-    resolveFunction(stmt.function);
+    resolveFunction(stmt.function, FunctionType.FUNCTION);
     return null;
   }
 
@@ -59,9 +65,14 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitReturnStmt(Stmt.Return stmt) {
+    if (currentFunction == FunctionType.NONE) {
+      Lox.error(stmt.keyword, "'return' is only allowed inside function body");
+    }
+
     if (stmt.value != null) {
       resolve(stmt.value);
     }
+
     return null;
   }
 
@@ -97,7 +108,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitFunctionExpr(Expr.Function expr) {
-    resolveFunction(expr);
+    resolveFunction(expr, FunctionType.FUNCTION);
     return null;
   }
 
@@ -181,6 +192,10 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     if (scopes.isEmpty()) return;
 
     Map<String, Boolean> scope = scopes.peek();
+    if (scope.containsKey(name.lexeme)) {
+      Lox.error(name, "Variable already exists");
+    }
+
     // `false` here means that variable is declared but not ready yet
     scope.put(name.lexeme, false);
   }
@@ -199,7 +214,9 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
   }
 
-  private void resolveFunction(Expr.Function function) {
+  private void resolveFunction(Expr.Function function, FunctionType type) {
+    FunctionType enclosingFunction = currentFunction;
+    currentFunction = type;
     beginScope();
     for (Token param : function.params) {
       declare(param);
@@ -207,5 +224,6 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
     resolve(function.body);
     endScope();
+    currentFunction = enclosingFunction;
   }
 }

@@ -46,16 +46,16 @@ whichFn(fun (b) {
  print b;
 });
 
-fun named(a) { print a; }
-whichFn(named);
-//
-// <fn>
-// <fn named>
+fun named(a) { print a; } // "<fn>"
+whichFn(named); // "<fn named>"
 
+// Class
 class MyClass {
   myMethod() {
-    return "Hello from MyClass";
+    print "Hello from MyClass";
   }
 }
-
-print MyClass; // Should print "MyClass"
+print MyClass; // "MyClass"
+var inst = MyClass();
+print inst;
+inst.myMethod(); // "Hello from MyClass"

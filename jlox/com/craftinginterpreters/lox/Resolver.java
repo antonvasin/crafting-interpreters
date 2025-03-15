@@ -20,14 +20,17 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     enum State { DECLARED, DEFINED, USED }
     private State state = State.DECLARED;
     private final Token name;
+    final int slot;
 
-    Variable(Token name) {
+    Variable(Token name, int slot) {
       this.name = name;
+      this.slot = slot;
     }
 
-    Variable(Token name, State state) {
+    Variable(Token name, State state, int slot) {
       this.name = name;
       this.state = state;
+      this.slot = slot;
     }
 
     public void setDefined() {
@@ -80,7 +83,8 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     define(stmt.name);
 
     beginScope();
-    scopes.peek().put("this", new Variable(stmt.name, Variable.State.USED));
+    Map<String, Variable> scope = scopes.peek();
+    scope.put("this", new Variable(stmt.name, Variable.State.USED, scope.size()));
 
     for (Stmt.Function method : stmt.methods) {
       FunctionType declaration = FunctionType.METHOD;
@@ -283,7 +287,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
       Lox.error(name, "Variable already exists");
     }
 
-    scope.put(name.lexeme, new Variable(name));
+    scope.put(name.lexeme, new Variable(name, scope.size()));
   }
 
   private void define(Token name) {
@@ -294,12 +298,13 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   private void resolveLocal(Expr expr, Token name, boolean isRead) {
     // We go down the stack and try to resolve variable in the nearest scope
     for (int i = scopes.size()-1; i >= 0; i--) {
-      if (scopes.get(i).containsKey(name.lexeme)) {
-        interpreter.resolve(expr, scopes.size()-1-i);
+      Map<String, Variable> scope = scopes.get(i);
+      if (scope.containsKey(name.lexeme)) {
+        interpreter.resolve(expr, scopes.size()-1-i, scope.get(name.lexeme).slot);
 
         // We mark function as used upon resolution to report unused errors later but only when it is beaing read
         if (isRead) {
-          scopes.get(i).get(name.lexeme).setUsed();
+          scope.get(name.lexeme).setUsed();
         }
         return;
       }

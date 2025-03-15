@@ -6,13 +6,15 @@ import java.util.List;
 import java.util.Map;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
-  final Environment globals = new Environment();
-  private Environment environment = globals;
-  private final Map<Expr, Integer> locals = new HashMap<>();
+  final Map<String, Object> globals = new HashMap<>();
+  private Environment environment;
+  private final Map<Object, Integer> locals = new HashMap<>();
+  private final Map<Object, Integer> slots = new HashMap<>();
   public Boolean isREPL = false;
 
   Interpreter() {
-    globals.define("clock", new LoxCallable() {
+    // Define native functions in globals
+    globals.put("clock", new LoxCallable() {
       @Override
       public int arity() {
         return 0;
@@ -97,10 +99,15 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
   private Object lookUpVariable(Token name, Expr expr) {
     Integer distance = locals.get(expr);
+
     if (distance != null) {
-      return environment.getAt(distance, name.lexeme);
+      return environment.getAt(distance, slots.get(expr));
     } else {
-      return globals.get(name);
+      if (globals.containsKey(name.lexeme)) {
+        return globals.get(name.lexeme);
+      } else {
+        throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
+      }
     }
   }
 
@@ -150,8 +157,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     stmt.accept(this);
   }
 
-  void resolve(Expr expr, int depth) {
+  void resolve(Expr expr, int depth, int slot) {
     locals.put(expr, depth);
+    slots.put(expr, slot);
   }
 
   void executeBlock(List<Stmt> statements, Environment environment) {
@@ -176,7 +184,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   @Override
   public Void visitClassStmt(Stmt.Class stmt) {
     // Because we define class first it can reference itself inside it's own methods
-    environment.define(stmt.name.lexeme, null);
+    define(stmt.name, null);
     Map<String, LoxFunction> methods = new HashMap<>();
     for (Stmt.Function method : stmt.methods) {
       LoxFunction function = new LoxFunction(stmt.name.lexeme, method.function, environment, method.name.lexeme.equals("init"));
@@ -184,7 +192,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     LoxClass klass = new LoxClass(stmt.name.lexeme, methods);
-    environment.assign(stmt.name, klass);
+
+    Integer distance = locals.get(stmt);
+    if (distance != null) {
+      environment.assignAt(distance, slots.get(stmt), klass);
+    } else {
+      globals.put(stmt.name.lexeme, klass);
+    }
 
     return null;
   }
@@ -204,7 +218,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     // Define function object
     LoxFunction function = new LoxFunction(stmt.name.lexeme, stmt.function, environment, false);
     // Bind it to a name in the environment
-    environment.define(stmt.name.lexeme, function);
+    define(stmt.name, function);
     return null;
   }
 
@@ -243,7 +257,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     if (stmt.initializer != null) {
       value = evaluate(stmt.initializer);
     }
-    environment.define(stmt.name.lexeme, value);
+    define(stmt.name, value);
     return null;
   }
 
@@ -273,9 +287,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     Integer distance = locals.get(expr);
 
     if (distance != null) {
-      environment.assignAt(distance, expr.name, value);
+      environment.assignAt(distance, slots.get(expr), value);
     } else {
-      globals.assign(expr.name, value);
+      if (globals.containsKey(expr.name.lexeme)) {
+        globals.put(expr.name.lexeme, value);
+      } else {
+        throw new RuntimeError(expr.name, "Undefined variable '" + expr.name.lexeme + "'.");
+      }
     }
 
     return value;
@@ -360,5 +378,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
       return ((LoxInstance) object).get(expr.name);
     }
     throw new RuntimeError(expr.name, "Only instances can have properties.");
+  }
+
+  private void define(Token name, Object value) {
+    if (environment != null) {
+      environment.define(value);
+    } else {
+      globals.put(name.lexeme, value);
+    }
   }
 }

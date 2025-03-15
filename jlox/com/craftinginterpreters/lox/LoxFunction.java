@@ -17,7 +17,7 @@ class LoxFunction implements LoxCallable {
 
   LoxFunction bind(LoxInstance instance) {
     Environment environment = new Environment(closure);
-    environment.define("this", instance);
+    environment.define(instance);
     return new LoxFunction(name, declaration, environment, isInitializer);
   }
 
@@ -37,7 +37,7 @@ class LoxFunction implements LoxCallable {
     Environment environment = new Environment(closure);
 
     for (int i = 0; i < declaration.params.size(); i++) {
-      environment.define(declaration.params.get(i).lexeme, arguments.get(i));
+      environment.define(arguments.get(i));
     }
 
     // We get return value by catching special exception and returning it's
@@ -47,12 +47,12 @@ class LoxFunction implements LoxCallable {
       interpreter.executeBlock(declaration.body, environment);
     } catch (Return returnValue) {
       // This allows empty `return` statements inside initializers
-      if (isInitializer) return closure.getAt(0, "this");
+      if (isInitializer) return closure.getAt(0, 0);
       return returnValue.value;
     }
 
     // Always return `this` from initializer
-    if (isInitializer) return closure.getAt(0, "this");
+    if (isInitializer) return closure.getAt(0, 0);
 
     return null;
   }

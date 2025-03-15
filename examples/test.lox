@@ -52,3 +52,10 @@ whichFn(named);
 // <fn>
 // <fn named>
 
+class MyClass {
+  myMethod() {
+    return "Hello from MyClass";
+  }
+}
+
+print MyClass; // Should print "MyClass"

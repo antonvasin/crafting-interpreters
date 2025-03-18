@@ -13,15 +13,8 @@ import java.util.Stack;
  * All branches along with function bodies are visited.
  */
 public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
-  private final Interpreter interpreter;
-  private final Stack<Map<String, Variable>> scopes = new Stack<>();
-  private FunctionType currentFunction = FunctionType.NONE;
-
-  Resolver(Interpreter interpreter) {
-    this.interpreter = interpreter;
-  }
-
   private enum FunctionType { NONE, FUNCTION, METHOD }
+  private enum ClassType    { NONE, CLASS }
 
   private class Variable {
     enum State { DECLARED, DEFINED, USED }
@@ -46,6 +39,30 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
   }
 
+  private final Interpreter interpreter;
+  private final Stack<Map<String, Variable>> scopes = new Stack<>();
+
+  private FunctionType currentFunction = FunctionType.NONE;
+  private ClassType currenetClass = ClassType.NONE;
+
+  Resolver(Interpreter interpreter) {
+    this.interpreter = interpreter;
+  }
+
+  void resolve(List<Stmt> statements) {
+    for (Stmt statement : statements) {
+      resolve(statement);
+    }
+  }
+
+  private void resolve(Stmt stmt) {
+    stmt.accept(this);
+  }
+
+  private void resolve(Expr expr) {
+    expr.accept(this);
+  }
+
   @Override
   public Void visitBlockStmt(Stmt.Block stmt) {
     beginScope();
@@ -56,6 +73,9 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitClassStmt(Stmt.Class stmt) {
+    ClassType enclosingClass = currenetClass;
+    currenetClass = ClassType.CLASS;
+
     declare(stmt.name);
     define(stmt.name);
 
@@ -68,6 +88,8 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     endScope();
+
+    currenetClass = enclosingClass;
 
     return null;
   }
@@ -202,6 +224,10 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitThisExpr(Expr.This expr) {
+    if (currenetClass == ClassType.NONE) {
+      Lox.error(expr.keyword, "Can't use 'this' outside of a class.");
+      return null;
+    }
     resolveLocal(expr, expr.keyword, true);
     return null;
   }
@@ -223,20 +249,6 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     resolveLocal(expr, expr.name, true);
     return null;
-  }
-
-  private void resolve(Stmt stmt) {
-    stmt.accept(this);
-  }
-
-  private void resolve(Expr expr) {
-    expr.accept(this);
-  }
-
-  void resolve(List<Stmt> statements) {
-    for (Stmt statement : statements) {
-      resolve(statement);
-    }
   }
 
   private void beginScope() {

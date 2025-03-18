@@ -11,3 +11,5 @@ fun scope(a) {
   print a;
 }
 scope(123);
+
+print this; // Should error

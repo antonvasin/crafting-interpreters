@@ -50,12 +50,12 @@ fun named(a) { print a; } // "<fn>"
 whichFn(named); // "<fn named>"
 
 // Class
-class MyClass {
-  myMethod() {
-    print "Hello from MyClass";
+class Cake {
+  taste() {
+    var adjective = "delicious";
+    print "The " + this.flavor + " cake is " + adjective + "!";
   }
 }
-print MyClass; // "MyClass"
-var inst = MyClass();
-print inst;
-inst.myMethod(); // "Hello from MyClass"
+var cake = Cake();
+cake.flavor = "German chocolate";
+cake.taste(); // Prints "The German chocolate cake is delicious!"

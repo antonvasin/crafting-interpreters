@@ -72,6 +72,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   }
 
   @Override
+  public Object visitThisExpr(Expr.This expr) {
+    return lookUpVariable(expr.keyword, expr);
+  }
+
+  @Override
   public Object visitUnaryExpr(Expr.Unary expr) {
     Object right = evaluate(expr.right);
     switch (expr.operator.type) {
@@ -80,10 +85,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
       case MINUS:
         checkNumberOperand(expr.operator, right);
         return -(double)right;
-        // TODO: add fallthrough cases for errors
+      default:
+        return null;
     }
-    // Unreachable
-    return null;
   }
 
   @Override
@@ -322,9 +326,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
       case STAR:
         checkNumberOperands(expr.operator, left, right);
         return (double)left * (double)right;
+      default:
+        return null;
     }
-    // Unreachable
-    return null;
   }
 
   @Override

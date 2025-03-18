@@ -122,3 +122,18 @@ java -cp build/jlox com.craftinginterpreters.lox.Lox examples/basic.lox
    "undefined" value which is not ideal.
 3. [x] Report "not used" errors in Resolver.
 4. [ ] Store variables in Resolver inside of an array.
+
+### Chapter 12 _p206_
+
+1. [ ] Implement static methods and use `class` keyword before function name to
+   indicate that it's static. *Make `LoxClass` extend `LoxInstance` a-la Ruby and Smalltalk.*
+2. [ ] Implement getter methods as a method with no parameter list.
+3. Visibility keywords offer better control of the object state and protection
+   against errors and invalid uses of the code. On the other hand this usually
+   involves writing more code for getters/setters and more things to keep in
+   mind when dealing with inheritance/extending classes
+   (`public/private/protected/etc` keywords). No visibility checks allow for
+   faster iteration with simpler code. Ruby and Smalltalk give you better
+   encapsulation due to 'protected by default' behaviour but without additional
+   visibility keywords you only have to deal with getters/setters. JS lets you
+   write getters/setter but they're optional.

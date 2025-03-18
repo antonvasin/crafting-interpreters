@@ -13,7 +13,7 @@ import java.util.Stack;
  * All branches along with function bodies are visited.
  */
 public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
-  private enum FunctionType { NONE, FUNCTION, METHOD }
+  private enum FunctionType { NONE, FUNCTION, INITIALIZER, METHOD }
   private enum ClassType    { NONE, CLASS }
 
   private class Variable {
@@ -84,6 +84,9 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     for (Stmt.Function method : stmt.methods) {
       FunctionType declaration = FunctionType.METHOD;
+      if (method.name.lexeme.equals("init")) {
+        declaration = FunctionType.INITIALIZER;
+      }
       resolveFunction(method.function, declaration);
     }
 
@@ -127,6 +130,11 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   public Void visitReturnStmt(Stmt.Return stmt) {
     if (currentFunction == FunctionType.NONE) {
       Lox.error(stmt.keyword, "'return' is only allowed inside function body");
+    }
+
+    // Returning from constructor is not allowed
+    if (currentFunction == FunctionType.INITIALIZER) {
+      Lox.error(stmt.keyword, "Can't 'return' a value from an initializer");
     }
 
     if (stmt.value != null) {

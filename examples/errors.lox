@@ -13,3 +13,11 @@ fun scope(a) {
 scope(123);
 
 print this; // Should error
+
+class ClassA {
+  init() {
+    return "can't return values";
+  }
+}
+
+ClassA();

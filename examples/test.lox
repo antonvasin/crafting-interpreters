@@ -51,6 +51,9 @@ whichFn(named); // "<fn named>"
 
 // Class
 class Cake {
+  init() {
+    this.flavor = "Portuguese";
+  }
   taste() {
     var adjective = "delicious";
     print "The " + this.flavor + " cake is " + adjective + "!";

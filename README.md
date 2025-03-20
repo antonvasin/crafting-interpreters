@@ -121,7 +121,7 @@ java -cp build/jlox com.craftinginterpreters.lox.Lox examples/basic.lox
    then they must be allowed in the global scope also but this leads to having
    "undefined" value which is not ideal.
 3. [x] Report "not used" errors in Resolver.
-4. [ ] Store variables in Resolver inside of an array.
+4. [x] Store variables in Resolver inside of an array.
 
 ### Chapter 12 _p206_
 

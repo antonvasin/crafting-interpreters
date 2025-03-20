@@ -20,6 +20,9 @@ jlox: generate_ast
 test: jlox
 	@ java -cp build/jlox com.craftinginterpreters.lox.Lox examples/test.lox
 
+test_err: jlox
+	@ java -cp build/jlox com.craftinginterpreters.lox.Lox examples/errors.lox
+
 repl: jlox
 	@ java -cp build/jlox com.craftinginterpreters.lox.Lox
 

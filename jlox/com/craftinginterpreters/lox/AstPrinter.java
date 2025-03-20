@@ -42,6 +42,56 @@ public class AstPrinter implements Expr.Visitor<String> {
     return expr.name.lexeme;
   }
 
+  @Override
+  public String visitFunctionExpr(Expr.Function expr) {
+    StringBuilder builder = new StringBuilder();
+    builder.append("(fun (");
+    
+    for (int i = 0; i < expr.params.size(); i++) {
+      if (i > 0) builder.append(" ");
+      builder.append(expr.params.get(i).lexeme);
+    }
+    
+    builder.append(") ");
+    
+    // We would need to recursively visit the body statements here,
+    // but to keep it simple we'll just indicate it's a body
+    builder.append("body");
+    
+    builder.append(")");
+    return builder.toString();
+  }
+
+  @Override
+  public String visitCallExpr(Expr.Call expr) {
+    StringBuilder builder = new StringBuilder();
+    builder.append("(call ");
+    builder.append(expr.callee.accept(this));
+    
+    for (Expr argument : expr.arguments) {
+      builder.append(" ");
+      builder.append(argument.accept(this));
+    }
+    
+    builder.append(")");
+    return builder.toString();
+  }
+
+  @Override
+  public String visitGetExpr(Expr.Get expr) {
+    return parenthesize("get", expr.object) + "." + expr.name.lexeme;
+  }
+
+  @Override
+  public String visitSetExpr(Expr.Set expr) {
+    return parenthesize("set " + expr.name.lexeme, expr.object, expr.value);
+  }
+
+  @Override
+  public String visitThisExpr(Expr.This expr) {
+    return "this";
+  }
+
   private String parenthesize(String name, Expr... exprs) {
     StringBuilder builder = new StringBuilder();
 

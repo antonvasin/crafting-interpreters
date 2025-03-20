@@ -63,7 +63,7 @@ java -cp build/jlox com.craftinginterpreters.lox.Lox examples/basic.lox
     equality →  comparison ( ( "!=" | "==" ) comparison )* ;
     ...
     ```
-3. [ ] Add error production to handle each binary operator appearing without
+3. [x] Add error production to handle each binary operator appearing without
    a left-hand operand.
 
 ### Chapter 7 _p102_
@@ -79,7 +79,7 @@ java -cp build/jlox com.craftinginterpreters.lox.Lox examples/basic.lox
     with mixed user input such as forms.
     - `String` and `Number` for sorting mixed types like in Ruby. Number always
     comes first in sort.
-2. [ ] Implement casting to `String` in `"pancake" + 10 => "pancake10"`.
+2. [x] Implement casting to `String` in `"pancake" + 10 => "pancake10"`.
 3. If we divide by 0 right now the result is `Infinity`. Since we don't have `Infinity` in our types currently it is better to raise `RuntimeError`.
     - JS, Lua return `Infinity` as well.
     - Python raises runtime error.

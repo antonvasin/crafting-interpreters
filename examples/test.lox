@@ -1,5 +1,6 @@
 2 + 2;
 print "Hello, world!";
+print "code" + 420;
 // Comment
 /*
  * block comment

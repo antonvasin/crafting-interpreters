@@ -21,3 +21,7 @@ class ClassA {
 }
 
 ClassA();
+
+// == Parsing errors ==
+
+//+ 10; // binary op without left operand

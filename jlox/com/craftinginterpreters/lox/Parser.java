@@ -353,6 +353,10 @@ class Parser {
       return new Expr.Unary(operator, right);
     }
 
+    if (check(PLUS) || check(STAR) || check(EQUAL_EQUAL) || check(BANG_EQUAL) || check(GREATER) || check(GREATER_EQUAL) || check(LESS) || check(LESS_EQUAL)) {
+      throw error(peek(), "Missing left operand for binary operator.");
+    }
+
     return call();
   }
 

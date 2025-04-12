@@ -183,6 +183,15 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitClassStmt(Stmt.Class stmt) {
+    Object superclass = null;
+    if (stmt.superclass != null) {
+      superclass = evaluate(stmt.superclass);
+      if (!(superclass instanceof LoxClass)) {
+        throw new RuntimeError(stmt.superclass.name, "Superclass must be a class");
+
+      }
+    }
+
     // Because we define class first it can reference itself inside it's own methods
     define(stmt.name, null);
     Map<String, LoxFunction> methods = new HashMap<>();
@@ -191,7 +200,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
       methods.put(method.name.lexeme, function);
     }
 
-    LoxClass klass = new LoxClass(stmt.name.lexeme, methods);
+    LoxClass klass = new LoxClass(stmt.name.lexeme, (LoxClass)superclass, methods);
 
     Integer distance = locals.get(stmt);
     if (distance != null) {

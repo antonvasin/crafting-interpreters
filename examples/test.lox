@@ -63,3 +63,10 @@ class Cake {
 var cake = Cake();
 cake.flavor = "German chocolate";
 cake.taste(); // Prints "The German chocolate cake is delicious!"
+
+// Inheritance
+
+class CarrotCake < Cake { }
+var carrotCake = CarrotCake();
+carrotCake.flavor = "carrot";
+carrotCake.taste();

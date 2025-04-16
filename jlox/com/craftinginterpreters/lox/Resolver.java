@@ -14,7 +14,7 @@ import java.util.Stack;
  */
 public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   private enum FunctionType { NONE, FUNCTION, INITIALIZER, METHOD }
-  private enum ClassType    { NONE, CLASS }
+  private enum ClassType    { NONE, CLASS, SUBCLASS }
 
   private class Variable {
     enum State { DECLARED, DEFINED, USED }
@@ -46,7 +46,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   private final Stack<Map<String, Variable>> scopes = new Stack<>();
 
   private FunctionType currentFunction = FunctionType.NONE;
-  private ClassType currenetClass = ClassType.NONE;
+  private ClassType currentClass = ClassType.NONE;
 
   Resolver(Interpreter interpreter) {
     this.interpreter = interpreter;
@@ -76,8 +76,8 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitClassStmt(Stmt.Class stmt) {
-    ClassType enclosingClass = currenetClass;
-    currenetClass = ClassType.CLASS;
+    ClassType enclosingClass = currentClass;
+    currentClass = ClassType.CLASS;
 
     declare(stmt.name);
     define(stmt.name);
@@ -87,6 +87,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     if (stmt.superclass != null) {
+      currentClass = ClassType.SUBCLASS;
       resolve(stmt.superclass);
     }
 
@@ -112,7 +113,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     if (stmt.superclass != null) endScope();
 
-    currenetClass = enclosingClass;
+    currentClass = enclosingClass;
 
     return null;
   }
@@ -252,13 +253,18 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitSuperExpr(Expr.Super expr) {
+    if (currentClass == ClassType.NONE) {
+      Lox.error(expr.keyword, "Can't use 'super' outside of a class.");
+    } else if (currentClass != ClassType.SUBCLASS) {
+      Lox.error(expr.keyword, "Can't use 'super' in a class with no superclass.");
+    }
     resolveLocal(expr, expr.keyword, true);
     return null;
   }
 
   @Override
   public Void visitThisExpr(Expr.This expr) {
-    if (currenetClass == ClassType.NONE) {
+    if (currentClass == ClassType.NONE) {
       Lox.error(expr.keyword, "Can't use 'this' outside of a class.");
       return null;
     }

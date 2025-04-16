@@ -137,3 +137,9 @@ java -cp build/jlox com.craftinginterpreters.lox.Lox examples/basic.lox
    encapsulation due to 'protected by default' behaviour but without additional
    visibility keywords you only have to deal with getters/setters. JS lets you
    write getters/setter but they're optional.
+
+### Chapter 13 _p223_
+
+1. [ ] Traits, since they're more robust than multiple inheritance and mixins.
+2. [ ] Reverse calling superclass method similar to language BETA: top-to-bottom instead of bottom-to-top.
+3. [ ] Implement some nice features.
